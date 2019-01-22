@@ -10,10 +10,24 @@ Sightings.prototype.bindEvents = function () {
   PubSub.subscribe('SightingView:sighting-delete-clicked', (evt) => {
     this.deleteSighting(evt.detail);
   });
+
+  PubSub.subscribe('SightingView:sighting-submitted', (evt) => {
+    this.postSighting(evt.detail);
+  })
 };
 
 Sightings.prototype.getData = function () {
   this.request.get()
+    .then((sightings) => {
+      console.log(sightings);
+      PubSub.publish('Sightings:data-loaded', sightings);
+    })
+    .catch(console.error);
+};
+
+Sightings.prototype.postSighting = function (sighting) {
+  const request = new Request(this.url);
+  request.post(sighting)
     .then((sightings) => {
       PubSub.publish('Sightings:data-loaded', sightings);
     })
